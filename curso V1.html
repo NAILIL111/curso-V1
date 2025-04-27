@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>El cosmos de Fernando Correa</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white">
+  <!-- Portada de Bienvenida -->
+  <section class="relative h-screen flex items-center justify-center text-center p-4" style="background-image: url('http://antwrp.gsfc.nasa.gov/apod/image/0701/oriondeepwide_gendler_f.jpg'); background-size: cover; background-position: center;">
+    <div class="bg-black bg-opacity-60 p-8 rounded-2xl">
+      <h1 class="text-4xl md:text-6xl font-bold mb-4">El cosmos de Fernando Correa</h1>
+      <p class="text-xl md:text-2xl">EN EL COSMOS DE FERNANDO CORREA ENCUENTRAS LO QUE BUSCAS PARA QUE TE ENCUENTRES A TI MISMO</p>
+    </div>
+  </section>
+
+  <!-- Lista de Cursos -->
+  <section class="py-12 px-6 md:px-16">
+    <h2 class="text-3xl font-bold mb-8 text-center">Cursos Disponibles</h2>
+    <div id="courses" class="grid gap-8 md:grid-cols-2 lg:grid-cols-3"></div>
+  </section>
+
+  <!-- Formulario de Inscripción -->
+  <section class="py-12 px-6 md:px-16 bg-gray-800 rounded-t-3xl">
+    <h2 class="text-3xl font-bold mb-8 text-center">Formulario de Inscripción</h2>
+    <form id="registrationForm" class="space-y-6 max-w-2xl mx-auto">
+      <input type="text" id="name" placeholder="Nombre completo" class="w-full p-3 rounded-xl bg-gray-700" required>
+      <input type="number" id="age" placeholder="Edad" class="w-full p-3 rounded-xl bg-gray-700" required>
+      <input type="email" id="email" placeholder="Correo electrónico" class="w-full p-3 rounded-xl bg-gray-700" required>
+      <input type="text" id="phone" placeholder="Número de teléfono" class="w-full p-3 rounded-xl bg-gray-700" required>
+      <select id="course" class="w-full p-3 rounded-xl bg-gray-700" required></select>
+      <div class="flex gap-6 items-center">
+        <label><input type="radio" name="modality" value="Presencial" class="mr-2" required> Presencial</label>
+        <label><input type="radio" name="modality" value="Online" class="mr-2" required> Online</label>
+      </div>
+      <textarea id="comments" rows="4" placeholder="Comentarios adicionales" class="w-full p-3 rounded-xl bg-gray-700"></textarea>
+      <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 p-3 rounded-xl font-bold">Inscribirme</button>
+    </form>
+
+    <div id="confirmation" class="hidden mt-8 p-6 bg-green-500 rounded-xl text-center font-bold">¡Te has inscrito exitosamente! Redirigiendo al inicio...</div>
+  </section>
+
+  <!-- Scripts -->
+  <script>
+    const coursesList = [
+      { name: "Introducción a la Astronomía", description: "Conoce los fundamentos básicos del universo.", modality: "Presencial/Online", duration: "6 semanas", cost: "$150" },
+      { name: "Observación de Estrellas y Planetas", description: "Aprende técnicas de observación nocturna.", modality: "Presencial", duration: "4 semanas", cost: "$120" },
+      { name: "Astrofotografía para Principiantes", description: "Captura la belleza del cielo.", modality: "Online", duration: "5 semanas", cost: "$180" },
+      { name: "Cosmología Moderna", description: "Explora las teorías sobre el origen del universo.", modality: "Online", duration: "8 semanas", cost: "$200" },
+      { name: "Física de Agujeros Negros", description: "Adéntrate en los objetos más misteriosos.", modality: "Presencial", duration: "7 semanas", cost: "$220" },
+    ];
+
+    // Mostrar cursos
+    const coursesContainer = document.getElementById('courses');
+    const courseDropdown = document.getElementById('course');
+
+    coursesList.forEach(course => {
+      // Tarjetas de curso
+      const card = document.createElement('div');
+      card.className = "bg-gray-700 p-6 rounded-2xl shadow-md hover:shadow-lg transition";
+      card.innerHTML = `
+        <h3 class="text-2xl font-bold mb-2">${course.name}</h3>
+        <p class="mb-2">${course.description}</p>
+        <p class="text-sm mb-1"><strong>Modalidad:</strong> ${course.modality}</p>
+        <p class="text-sm mb-1"><strong>Duración:</strong> ${course.duration}</p>
+        <p class="text-sm"><strong>Costo:</strong> ${course.cost}</p>
+      `;
+      coursesContainer.appendChild(card);
+
+      // Opciones de cursos en el dropdown
+      const option = document.createElement('option');
+      option.value = course.name;
+      option.textContent = course.name;
+      courseDropdown.appendChild(option);
+    });
+
+    // Conexión con Google Sheets
+    const form = document.getElementById('registrationForm');
+    const confirmation = document.getElementById('confirmation');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+
+      // Modalidad (radio buttons)
+      data.modality = form.querySelector('input[name="modality"]:checked').value;
+
+      try {
+        await fetch('https://script.google.com/macros/s/AKfycbwqkIOnrvtAlrmEtrGKkGku2HvRWF5fkBIkEIxtMuOcVLEMJiTs28IfXWPCAhge6m1Kow/exec', {
+          method: 'POST',
+          body: new URLSearchParams(data)
+        });
+
+        confirmation.classList.remove('hidden');
+        form.reset();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        setTimeout(() => {
+          confirmation.classList.add('hidden');
+        }, 5000);
+
+      } catch (error) {
+        alert('Ocurrió un error al enviar tu inscripción. Inténtalo de nuevo.');
+        console.error(error);
+      }
+    });
+  </script>
+
+</body>
+</html>
